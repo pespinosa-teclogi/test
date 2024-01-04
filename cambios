@@ -1,0 +1,185 @@
+public class ResponseRndcCargo {
+
+	private String id;
+	private String entryId;
+	private String cargoId;
+	/**
+	 * The approval number for the consignments given by the RNDC response
+	 */
+	private String approvalId;
+	
+	/**
+	 * The document id of the collection in the database
+	 */
+	private String documentId;
+	
+	public String getApprovalId() {
+		return approvalId;
+	}
+	public void setApprovalId(String approvalId) {
+		this.approvalId = approvalId;
+	}
+	public String getId() {
+		return id;
+	}
+	public void setId(String id) {
+		this.id = id;
+	}
+	public String getEntryId() {
+		return entryId;
+	}
+	public void setEntryId(String entryId) {
+		this.entryId = entryId;
+	}
+	public String getCargoId() {
+		return cargoId;
+	}
+	public void setCargoId(String cargoId) {
+		this.cargoId = cargoId;
+	}
+	public String getDocumentId() {
+		return documentId;
+	}
+	public void setDocumentId(String documentId) {
+		this.documentId = documentId;
+	}
+	
+	
+}
+
+
+//in createConsignmet
+cargo.setState(StateCargo.CREATED.getValue());
+cargo = createCargo(cargo);
+responseRndcCargo.setCargoId(cargo.getId());
+//to save the document id in the ResponseRdncCargo
+responseRndcCargo.setDocumentId(id);
+if (isNational) {
+    tableId = Consecutives.CONSIGNMENT_CARGO.getValue();
+} else {
+    tableId = Consecutives.CONSIGNMENT_URBAN_CARGO.getValue();
+}
+if (!Utils.isEmpty(tableId)) {
+    cargoDao.createConsignment(responseRndcCargo, id, tableId);
+}
+
+//in createManifest
+ResponseRNDC responseRNDC = (ResponseRNDC) object;
+ResponseRndcCargo responseRndcCargo = new ResponseRndcCargo();
+responseRndcCargo.setId(manifestId);
+responseRndcCargo.setEntryId(responseRNDC.getEntryId());
+responseRndcCargo.setCargoId(cargo.getId());
+
+//to set the document id
+responseRndcCargo.setDocumentId(id);
+String tableId = null;
+if (isNational) {
+    tableId = Consecutives.MANIFIEST_CARGO.getValue();
+} else {
+    tableId = Consecutives.URBAN_CARGO.getValue();
+}
+
+
+
+
+
+
+
+//-------------------- Fixed the dao method to updateResponseRdncCargo
+
+package com.teclogi.dto.enums;
+public enum RndcCargoCollectionNames {
+	
+	NATIONAL_CONSIGNMENT("ConsignmentCargo"),
+	NATIONAL_MANIFEST("ManifestCargo"),
+	URBAN_CONSIGNMENT("ConsignmentUrbanCargo"),
+	URBAN_MANIFEST("UrbanCargo");
+	
+	
+	private String value;
+	
+	RndcCargoCollectionNames(String value) {
+		this.value = value;
+	}
+	public String getValue() {
+		return value;
+	}
+}
+
+//in cargoDao
+public void updateResponseRdncCargo(ResponseRndcCargo rndcCargo, String collectionName) throws Exception;
+
+
+//in cargoDaoImpl
+@Override
+public void updateResponseRdncCargo(ResponseRndcCargo rndcCargo, String collectionName) throws Exception {
+    Firestore db;
+
+    try {
+        db = fireStoreConnection.getDb(headersDto.getCompanyId());
+
+        if (!Utils.isEmpty(rndcCargo.getCargoId())) {
+            
+            String documentId="";
+            
+            Query query = db.collection(collectionName);
+
+            if (!Utils.isEmpty(rndcCargo.getId())) {
+                query = query.whereEqualTo("id", rndcCargo.getId());
+                ApiFuture<QuerySnapshot> querySnapshot = query.get();
+
+                if (querySnapshot.get().getDocuments() != null) {
+                    for (DocumentSnapshot document : querySnapshot.get().getDocuments()) {
+                        documentId = document.getId();
+                    }
+                }
+            }
+
+            DocumentReference docRef = db.collection(collectionName).document(documentId);
+            Map<String, Object> updates = new HashMap<>();
+            updates.put("id", rndcCargo.getId());
+            updates.put("entryId", rndcCargo.getEntryId());
+            updates.put("cargoId", rndcCargo.getCargoId());
+            updates.put("approvalId", rndcCargo.getApprovalId());
+            updates.put("documentId", documentId);
+            
+            docRef.set(updates, SetOptions.merge());
+
+        }
+
+    } catch (Exception e) {
+        throw e;
+    }
+
+}
+
+
+
+//in fulfillConsignment
+//get the responseRdncCargo for the national consignment
+responseRdncCargo = cargoDao.getConsignmentCargo(consignment);
+								
+//Set the approvalId
+responseRdncCargo.setApprovalId(responseRNDC.getEntryId());
+
+cargoDao.updateResponseRdncCargo(responseRdncCargo, RndcCargoCollectionNames.NATIONAL_CONSIGNMENT.getValue());
+
+
+//in fullfillManifest
+ResponseRNDC responseRNDC = (ResponseRNDC) object;
+ResponseRndcCargo responseRndcCargo = new ResponseRndcCargo();
+
+if(isNational) {
+    //National Manifest
+    responseRndcCargo = cargoDao.consignmentsOrManifestPerCargo(cargo.getId(), StateCargo.MANIFEST.getValue(), headersDto.getCompanyId()).get(0);
+    responseRndcCargo.setApprovalId(responseRNDC.getEntryId());
+    //update the responseRndcCargo 
+    cargoDao.updateResponseRdncCargo(responseRndcCargo, RndcCargoCollectionNames.NATIONAL_MANIFEST.getValue());
+    
+}else {
+    //Urban cargo manifest
+    responseRndcCargo = cargoDao.getUrbanConsignOrManiPerCargo(cargo.getId(), StateCargo.MANIFEST.getValue(), headersDto.getCompanyId()).get(0);
+    responseRndcCargo.setApprovalId(responseRNDC.getEntryId());
+    //update the responseRndcCargo
+    cargoDao.updateResponseRdncCargo(responseRndcCargo, RndcCargoCollectionNames.URBAN_MANIFEST.getValue());
+}
