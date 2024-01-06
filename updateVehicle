@@ -1,0 +1,556 @@
+//VehicleService
+
+@PUT
+@Produces("application/json")
+@Consumes("application/json")
+@Path("/update")
+public Response updateVehicle(Vehicle vehicle) throws Exception;
+
+//VehicleServiceImpl
+@Override
+public Response updateVehicle(Vehicle vehicle) throws Exception {
+    BasicResponse basicResponse = null;
+    Response resp;
+    try {
+        basicResponse = vehicleBusiness.updateVehicle(vehicle);
+        if (basicResponse != null) {
+            resp = Status.Ok.entity(basicResponse);
+        } else {
+            resp = Status.NoContent.entity("");
+        }
+    } catch (Exception e) {
+        System.err.println(TAG);
+        e.printStackTrace();
+        throw e;
+    }
+    return resp;
+}
+
+//VehicleBusiness
+public BasicResponse updateVehicle(Vehicle vehicle) throws Exception;
+
+//VehicleBusineesImpl
+@Override
+public BasicResponse updateVehicle(Vehicle vehicle) throws Exception {
+    BasicResponse basicResponse = null;
+    try {
+        basicResponse = vehicleDao.updateVehicle(vehicle);
+    } catch (Exception e) {
+        System.err.println(TAG);
+        throw e;
+    }
+    return basicResponse;
+}
+
+//VehicleDaoImpl
+@Override
+public Vehicle updateVehicle(Vehicle vehicle) throws Exception {
+    String companyId = null;
+    List<String> holderCompany = null;
+    Firestore db = fireStoreConnection.getDb(ConfigDataBase.APP_DATABASE_ID);
+
+    DocumentReference query = db.collection("Vehicle").document(vehicle.getId());
+
+    Map<String, Object> updates = new HashMap<>();
+
+    if (vehicle != null) {
+        if (!Utils.isEmpty(headersDto.getCompanyId())) {
+            companyId = headersDto.getCompanyId();
+            holderCompany = vehicle.getHolderCompany();
+            if (!Utils.isEmpty(companyId) && holderCompany != null && holderCompany.size() > 0) {
+                if (!holderCompany.contains(companyId)) {
+                    holderCompany.add(companyId);
+                    vehicle.setHolderCompany(holderCompany);
+                    vehicle.setHolderIsExclusive(false);
+                }
+            }else {
+                holderCompany = Arrays.asList(companyId); 
+            }
+            vehicle.setHolderCompany(holderCompany);
+        }
+        if (vehicle.getOwner() != null) {
+            if (!Utils.isEmpty(vehicle.getOwner().getDocumentTypeId())) {
+                updates.put("owner.documentTypeId", vehicle.getOwner().getDocumentTypeId());
+            }
+            if (!Utils.isEmpty(vehicle.getOwner().getDocumentTypeName())) {
+                updates.put("owner.documentTypeName", vehicle.getOwner().getDocumentTypeName());
+            }
+            if (!Utils.isEmpty(vehicle.getOwner().getDocument())) {
+                updates.put("owner.document", vehicle.getOwner().getDocument());
+            }
+            if (!Utils.isEmpty(vehicle.getOwner().getName())) {
+                updates.put("owner.name", vehicle.getOwner().getName());
+            }
+            if (!Utils.isEmpty(vehicle.getOwner().getAddressId())) {
+                updates.put("owner.addressId", vehicle.getOwner().getAddressId());
+            }
+            if (!Utils.isEmpty(vehicle.getOwner().getAddress())) {
+                updates.put("owner.address", vehicle.getOwner().getAddress());
+            }
+            if (!Utils.isEmpty(vehicle.getOwner().getMunicipalityCode())) {
+                updates.put("owner.municipalityCode", vehicle.getOwner().getMunicipalityCode());
+            }
+            if(vehicle.getErrorRNDC()!=null) {
+                if(!Utils.isEmpty(vehicle.getOwner().getErrorRNDC().getError())) {
+                    updates.put("owner.errorRNDC.error", vehicle.getOwner().getErrorRNDC().getError());
+                }
+            }
+        }
+        if (vehicle.getDriver() != null) {
+            if (!Utils.isEmpty(vehicle.getDriver().getDocumentTypeId())) {
+                updates.put("driver.documentTypeId", vehicle.getDriver().getDocumentTypeId());
+            }
+            if (!Utils.isEmpty(vehicle.getDriver().getDocumentTypeName())) {
+                updates.put("driver.documentTypeName", vehicle.getDriver().getDocumentTypeName());
+            }
+            if (!Utils.isEmpty(vehicle.getDriver().getDocument())) {
+                updates.put("driver.document", vehicle.getDriver().getDocument());
+            }
+            if (!Utils.isEmpty(vehicle.getDriver().getName())) {
+                updates.put("driver.name", vehicle.getDriver().getName());
+            }
+        }
+        if (vehicle.getAdministrator() != null) {
+            if (!Utils.isEmpty(vehicle.getAdministrator().getDocumentTypeId())) {
+                updates.put("administrator.documentTypeId", vehicle.getAdministrator().getDocumentTypeId());
+            }
+            if (!Utils.isEmpty(vehicle.getAdministrator().getDocumentTypeName())) {
+                updates.put("administrator.documentTypeName", vehicle.getAdministrator().getDocumentTypeName());
+            }
+            if (!Utils.isEmpty(vehicle.getAdministrator().getDocument())) {
+                updates.put("administrator.document", vehicle.getAdministrator().getDocument());
+            }
+            if (!Utils.isEmpty(vehicle.getAdministrator().getName())) {
+                updates.put("administrator.name", vehicle.getAdministrator().getName());
+            }
+            if (!Utils.isEmpty(vehicle.getAdministrator().getAddressId())) {
+                updates.put("administrator.addressId", vehicle.getAdministrator().getAddressId());
+            }
+            if (!Utils.isEmpty(vehicle.getAdministrator().getAddress())) {
+                updates.put("administrator.address", vehicle.getAdministrator().getAddress());
+            }
+            if (!Utils.isEmpty(vehicle.getAdministrator().getMunicipalityCode())) {
+                updates.put("administrator.municipalityCode", vehicle.getAdministrator().getMunicipalityCode());
+            }
+            if(vehicle.getErrorRNDC()!=null) {
+                if(!Utils.isEmpty(vehicle.getAdministrator().getErrorRNDC().getError())) {
+                    updates.put("administrator.errorRNDC.error", vehicle.getAdministrator().getErrorRNDC().getError());
+                }
+            }
+        }
+        if (vehicle.getHasAdministrator() != null) {
+            updates.put("hasAdministrator", vehicle.getHasAdministrator());
+            if(vehicle.getHasAdministrator().equals(false)) {
+                updates.put("administrator", vehicle.getAdministrator());
+            }
+        }
+        if (!Utils.isEmpty(vehicle.getId())) {
+            updates.put("id", vehicle.getId());
+        }
+
+        if (vehicle.getState() != null) {
+            if (!Utils.isEmpty(vehicle.getState().getDescription())) {
+                updates.put("state.description", vehicle.getState().getDescription());
+            }
+            if (!Utils.isEmpty(vehicle.getState().getType())) {
+                updates.put("state.type", vehicle.getState().getType());
+            }
+            updates.put("state.active", vehicle.getState().isActive());
+        }
+        if (!Utils.isEmpty(vehicle.getCheckId())) {
+            updates.put("checkId", vehicle.getCheckId());
+        }
+        if (vehicle.getVehicleType() != null) {
+            if (!Utils.isEmpty(vehicle.getVehicleType().getName())) {
+                updates.put("vehicleType.name", vehicle.getVehicleType().getName());
+            }
+            if (vehicle.getVehicleType().getQuality() != null) {
+                updates.put("vehicleType.quality", vehicle.getVehicleType().getQuality());
+            }
+            if (vehicle.getVehicleType().getQuantity() != 0) {
+                updates.put("vehicleType.quantity", vehicle.getVehicleType().getQuantity());
+            }
+
+            if (vehicle.getVehicleType().getBodyWorkType() != null) {
+                if (!Utils.isEmpty(vehicle.getVehicleType().getBodyWorkType().getName())) {
+                    updates.put("vehicleType.bodyWorkType.name",
+                            vehicle.getVehicleType().getBodyWorkType().getName());
+                }
+            }
+
+            if (vehicle.getVehicleType().getConfiguration() != null) {
+                if (!Utils.isEmpty(vehicle.getVehicleType().getConfiguration().getCode())) {
+                    updates.put("vehicleType.configuration.code",
+                            vehicle.getVehicleType().getConfiguration().getCode());
+                }
+                if (!Utils.isEmpty(vehicle.getVehicleType().getConfiguration().getDescription())) {
+                    updates.put("vehicleType.configuration.description",
+                            vehicle.getVehicleType().getConfiguration().getDescription());
+                }
+            }
+        }
+        if (!Utils.isEmpty(vehicle.getTrailerId())) {
+            updates.put("trailerId", vehicle.getTrailerId());
+        }
+
+        if (vehicle.getValidRTM() != null) {
+            if (!Utils.isEmpty(vehicle.getValidRTM().getDescription())) {
+                updates.put("validRTM.description", vehicle.getValidRTM().getDescription());
+            }
+            if (!Utils.isEmpty(vehicle.getValidRTM().getExpirationDate())) {
+                updates.put("validRTM.expirationDate", vehicle.getValidRTM().getExpirationDate());
+            }
+            updates.put("validRTM.active", vehicle.getValidRTM().isActive());
+        }
+        if (vehicle.getGps() != null) {
+            if (!Utils.isEmpty(vehicle.getGps().getGpsType())) {
+                updates.put("gps.gpsType", vehicle.getGps().getGpsType());
+            }
+            if (!Utils.isEmpty(vehicle.getGps().getUserGps())) {
+                updates.put("gps.userGps", vehicle.getGps().getUserGps());
+            }
+            if (!Utils.isEmpty(vehicle.getGps().getPasswordGps())) {
+                updates.put("gps.passwordGps", vehicle.getGps().getPasswordGps());
+            }
+        }
+        if (vehicle.getApprovalBy() != null) {
+            if (!Utils.isEmpty(vehicle.getApprovalBy().getUserId())) {
+                updates.put("approvalBy.userId", vehicle.getApprovalBy().getUserId());
+            }
+            if (!Utils.isEmpty(vehicle.getApprovalBy().getUserName())) {
+                updates.put("approvalBy.userName", vehicle.getApprovalBy().getUserName());
+            }
+            if (vehicle.getApprovalBy().getDate()!=null) {
+                updates.put("approvalBy.date", vehicle.getApprovalBy().getDate());
+            }
+        }
+        if (vehicle.getCreatedBy() != null) {
+            if (!Utils.isEmpty(vehicle.getCreatedBy().getUserId())) {
+                updates.put("createdBy.userId", vehicle.getCreatedBy().getUserId());
+            }
+            if (!Utils.isEmpty(vehicle.getCreatedBy().getUserName())) {
+                updates.put("createdBy.userName", vehicle.getCreatedBy().getUserName());
+            }
+            if (vehicle.getCreatedBy().getDate()!=null) {
+                updates.put("createdBy.date", vehicle.getCreatedBy().getDate());
+            }
+        }
+        
+        if (!Utils.isEmpty(vehicle.getCompanyId())) {
+            updates.put("companyId", vehicle.getCompanyId());
+        }
+
+        if (!Utils.isEmpty(vehicle.getPropertyCard())) {
+            updates.put("propertyCard", vehicle.getPropertyCard());
+        }
+
+        if (!Utils.isEmpty(vehicle.getFrontPicture())) {
+            updates.put("frontPicture", vehicle.getFrontPicture());
+        }
+
+        if (!Utils.isEmpty(vehicle.getTenureContract())) {
+            updates.put("tenureContract", vehicle.getTenureContract());
+        }
+        if (!Utils.isEmpty(vehicle.getRightLateralPicture())) {
+            updates.put("rightLateralPicture", vehicle.getRightLateralPicture());
+        }
+        if (!Utils.isEmpty(vehicle.getLeftLateralPicture())) {
+            updates.put("leftLateralPicture", vehicle.getLeftLateralPicture());
+        }
+        if (!Utils.isEmpty(vehicle.getColor())) {
+            updates.put("color", vehicle.getColor());
+        }
+
+        if (vehicle.getBankAccountAdvance() != null) {
+            if (!Utils.isEmpty(vehicle.getBankAccountAdvance().getLicensePlate())) {
+                updates.put("bankAccountAdvance.licensePlate", vehicle.getBankAccountAdvance().getLicensePlate());
+            }
+            if (!Utils.isEmpty(vehicle.getBankAccountAdvance().getDocumentTypeId())) {
+                updates.put("bankAccountAdvance.documentTypeId",
+                        vehicle.getBankAccountAdvance().getDocumentTypeId());
+            }
+            if (!Utils.isEmpty(vehicle.getBankAccountAdvance().getDocumentTypeName())) {
+                updates.put("bankAccountAdvance.documentTypeName",
+                        vehicle.getBankAccountAdvance().getDocumentTypeName());
+            }
+            if (!Utils.isEmpty(vehicle.getBankAccountAdvance().getDocument())) {
+                updates.put("bankAccountAdvance.document", vehicle.getBankAccountAdvance().getDocument());
+            }
+            if (!Utils.isEmpty(vehicle.getBankAccountAdvance().getName())) {
+                updates.put("bankAccountAdvance.name", vehicle.getBankAccountAdvance().getName());
+            }
+            if (!Utils.isEmpty(vehicle.getBankAccountAdvance().getEmail())) {
+                updates.put("bankAccountAdvance.email", vehicle.getBankAccountAdvance().getEmail());
+            }
+            if (!Utils.isEmpty(vehicle.getBankAccountAdvance().getPhone())) {
+                updates.put("bankAccountAdvance.phone", vehicle.getBankAccountAdvance().getPhone());
+            }
+            if (!Utils.isEmpty(vehicle.getBankAccountAdvance().getAddress())) {
+                updates.put("bankAccountAdvance.address", vehicle.getBankAccountAdvance().getAddress());
+            }
+            if (vehicle.getBankAccountAdvance().getBank() != null) {
+                if (!Utils.isEmpty(vehicle.getBankAccountAdvance().getBank().getId())) {
+                    updates.put("bankAccountAdvance.bank.id", vehicle.getBankAccountAdvance().getBank().getId());
+                }
+                if (!Utils.isEmpty(vehicle.getBankAccountAdvance().getBank().getName())) {
+                    updates.put("bankAccountAdvance.bank.name",
+                            vehicle.getBankAccountAdvance().getBank().getName());
+                }
+                if (!Utils.isEmpty(vehicle.getBankAccountAdvance().getBank().getCode())) {
+                    updates.put("bankAccountAdvance.bank.code",
+                            vehicle.getBankAccountAdvance().getBank().getCode());
+                }
+                if (!Utils.isEmpty(vehicle.getBankAccountAdvance().getBank().getCodeBancolombia())) {
+                    updates.put("bankAccountAdvance.bank.codeBancolombia",
+                            vehicle.getBankAccountAdvance().getBank().getCodeBancolombia());
+                }
+            }
+
+            if (vehicle.getBankAccountAdvance().getState() != null) {
+                updates.put("bankAccountAdvance.state.active",
+                        vehicle.getBankAccountAdvance().getState().isActive());
+                if (!Utils.isEmpty(vehicle.getBankAccountAdvance().getState().getDescription())) {
+                    updates.put("bankAccountAdvance.state.description",
+                            vehicle.getBankAccountAdvance().getState().getDescription());
+                }
+                if (vehicle.getBankAccountAdvance().getState().getDate() != null) {
+                    updates.put("bankAccountAdvance.state.date",
+                            vehicle.getBankAccountAdvance().getState().getDate());
+                }
+                if (!Utils.isEmpty(vehicle.getBankAccountAdvance().getState().getUserId())) {
+                    updates.put("bankAccountAdvance.state.userId",
+                            vehicle.getBankAccountAdvance().getState().getUserId());
+                }
+                if (!Utils.isEmpty(vehicle.getBankAccountAdvance().getState().getType())) {
+                    updates.put("bankAccountAdvance.state.type",
+                            vehicle.getBankAccountAdvance().getState().getType());
+                }
+            }
+
+            if (!Utils.isEmpty(vehicle.getBankAccountAdvance().getAccountTypeCode())) {
+                updates.put("bankAccountAdvance.accountTypeCode",
+                        vehicle.getBankAccountAdvance().getAccountTypeCode());
+            }
+            if (!Utils.isEmpty(vehicle.getBankAccountAdvance().getAccountType())) {
+                updates.put("bankAccountAdvance.accountType", vehicle.getBankAccountAdvance().getAccountType());
+            }
+            if (!Utils.isEmpty(vehicle.getBankAccountAdvance().getAccountNumber())) {
+                updates.put("bankAccountAdvance.accountNumber", vehicle.getBankAccountAdvance().getAccountNumber());
+            }
+            if (!Utils.isEmpty(vehicle.getBankAccountAdvance().getPurpose())) {
+                updates.put("bankAccountAdvance.purpose", vehicle.getBankAccountAdvance().getPurpose());
+            }
+            
+            updates.put("bankAccountAdvance.createdInBank", vehicle.getBankAccountAdvance().isCreatedInBank());
+            
+            if (!Utils.isEmpty(vehicle.getBankAccountAdvance().getCertificate())) {
+                updates.put("bankAccountAdvance.certificate", vehicle.getBankAccountAdvance().getCertificate());
+            }
+            if (!Utils.isEmpty(vehicle.getBankAccountAdvance().getAuthorization())) {
+                updates.put("bankAccountAdvance.authorization", vehicle.getBankAccountAdvance().getAuthorization());
+            }
+            if (!Utils.isEmpty(vehicle.getBankAccountAdvance().getRut())) {
+                updates.put("bankAccountAdvance.rut", vehicle.getBankAccountAdvance().getRut());
+            }
+        }
+
+        if (vehicle.getBankAccountBalance() != null) {
+            if (!Utils.isEmpty(vehicle.getBankAccountBalance().getLicensePlate())) {
+                updates.put("bankAccountBalance.licensePlate", vehicle.getBankAccountBalance().getLicensePlate());
+            }
+            if (!Utils.isEmpty(vehicle.getBankAccountBalance().getDocumentTypeId())) {
+                updates.put("bankAccountBalance.documentTypeId",
+                        vehicle.getBankAccountBalance().getDocumentTypeId());
+            }
+            if (!Utils.isEmpty(vehicle.getBankAccountBalance().getDocumentTypeName())) {
+                updates.put("bankAccountBalance.documentTypeName",
+                        vehicle.getBankAccountBalance().getDocumentTypeName());
+            }
+            if (!Utils.isEmpty(vehicle.getBankAccountBalance().getDocument())) {
+                updates.put("bankAccountBalance.document", vehicle.getBankAccountBalance().getDocument());
+            }
+            if (!Utils.isEmpty(vehicle.getBankAccountBalance().getName())) {
+                updates.put("bankAccountBalance.name", vehicle.getBankAccountBalance().getName());
+            }
+            if (!Utils.isEmpty(vehicle.getBankAccountBalance().getEmail())) {
+                updates.put("bankAccountBalance.email", vehicle.getBankAccountBalance().getEmail());
+            }
+            if (!Utils.isEmpty(vehicle.getBankAccountBalance().getPhone())) {
+                updates.put("bankAccountBalance.phone", vehicle.getBankAccountBalance().getPhone());
+            }
+            if (!Utils.isEmpty(vehicle.getBankAccountBalance().getAddress())) {
+                updates.put("bankAccountBalance.address", vehicle.getBankAccountBalance().getAddress());
+            }
+            if (vehicle.getBankAccountBalance().getBank() != null) {
+                if (!Utils.isEmpty(vehicle.getBankAccountBalance().getBank().getId())) {
+                    updates.put("bankAccountBalance.bank.id", vehicle.getBankAccountBalance().getBank().getId());
+                }
+                if (!Utils.isEmpty(vehicle.getBankAccountBalance().getBank().getName())) {
+                    updates.put("bankAccountBalance.bank.name",
+                            vehicle.getBankAccountBalance().getBank().getName());
+                }
+                if (!Utils.isEmpty(vehicle.getBankAccountBalance().getBank().getCode())) {
+                    updates.put("bankAccountBalance.bank.code",
+                            vehicle.getBankAccountBalance().getBank().getCode());
+                }
+                if (!Utils.isEmpty(vehicle.getBankAccountBalance().getBank().getCodeBancolombia())) {
+                    updates.put("bankAccountBalance.bank.codeBancolombia",
+                            vehicle.getBankAccountBalance().getBank().getCodeBancolombia());
+                }
+            }
+
+            if (vehicle.getBankAccountBalance().getState() != null) {
+                updates.put("bankAccountBalance.state.active",
+                        vehicle.getBankAccountBalance().getState().isActive());
+                if (!Utils.isEmpty(vehicle.getBankAccountBalance().getState().getDescription())) {
+                    updates.put("bankAccountBalance.state.description",
+                            vehicle.getBankAccountBalance().getState().getDescription());
+                }
+                if (vehicle.getBankAccountBalance().getState().getDate() != null) {
+                    updates.put("bankAccountBalance.state.date",
+                            vehicle.getBankAccountBalance().getState().getDate());
+                }
+                if (!Utils.isEmpty(vehicle.getBankAccountBalance().getState().getUserId())) {
+                    updates.put("bankAccountBalance.state.userId",
+                            vehicle.getBankAccountBalance().getState().getUserId());
+                }
+                if (!Utils.isEmpty(vehicle.getBankAccountBalance().getState().getType())) {
+                    updates.put("bankAccountBalance.state.type",
+                            vehicle.getBankAccountBalance().getState().getType());
+                }
+            }
+
+            if (!Utils.isEmpty(vehicle.getBankAccountBalance().getAccountTypeCode())) {
+                updates.put("bankAccountBalance.accountTypeCode",
+                        vehicle.getBankAccountBalance().getAccountTypeCode());
+            }
+            if (!Utils.isEmpty(vehicle.getBankAccountBalance().getAccountType())) {
+                updates.put("bankAccountBalance.accountType", vehicle.getBankAccountBalance().getAccountType());
+            }
+            if (!Utils.isEmpty(vehicle.getBankAccountBalance().getAccountNumber())) {
+                updates.put("bankAccountBalance.accountNumber", vehicle.getBankAccountBalance().getAccountNumber());
+            }
+            if (!Utils.isEmpty(vehicle.getBankAccountBalance().getPurpose())) {
+                updates.put("bankAccountBalance.purpose", vehicle.getBankAccountBalance().getPurpose());
+            }
+            
+            updates.put("bankAccountBalance.createdInBank", vehicle.getBankAccountBalance().isCreatedInBank());
+            
+            if (!Utils.isEmpty(vehicle.getBankAccountBalance().getCertificate())) {
+                updates.put("bankAccountBalance.certificate", vehicle.getBankAccountBalance().getCertificate());
+            }
+            if (!Utils.isEmpty(vehicle.getBankAccountBalance().getAuthorization())) {
+                updates.put("bankAccountBalance.authorization", vehicle.getBankAccountBalance().getAuthorization());
+            }
+            if (!Utils.isEmpty(vehicle.getBankAccountBalance().getRut())) {
+                updates.put("bankAccountBalance.rut", vehicle.getBankAccountBalance().getRut());
+            }
+        }
+        if (!Utils.isEmpty(vehicle.getChassisId())) {
+            updates.put("chassisId", vehicle.getChassisId());
+        }
+        if (!Utils.isEmpty(vehicle.getMotorId())) {
+            updates.put("motorId", vehicle.getMotorId());
+        }
+        if (vehicle.getBodywork() != null) {
+            if (!Utils.isEmpty(vehicle.getBodywork().getCode())) {
+                updates.put("bodywork.code", vehicle.getBodywork().getCode());
+            }
+            if (!Utils.isEmpty(vehicle.getBodywork().getDescription())) {
+                updates.put("bodywork.description", vehicle.getBodywork().getDescription());
+            }
+        }
+        if (vehicle.getBrand() != null) {
+            if (!Utils.isEmpty(vehicle.getBrand().getCode())) {
+                updates.put("brand.code", vehicle.getBrand().getCode());
+            }
+            if (!Utils.isEmpty(vehicle.getBrand().getDescription())) {
+                updates.put("brand.description", vehicle.getBrand().getDescription());
+            }
+        }
+        if (vehicle.getLine() != null) {
+            if (!Utils.isEmpty(vehicle.getLine().getCode())) {
+                updates.put("line.code", vehicle.getLine().getCode());
+            }
+            if (!Utils.isEmpty(vehicle.getLine().getDescription())) {
+                updates.put("line.description", vehicle.getLine().getDescription());
+            }
+        }
+        if (!Utils.isEmpty(vehicle.getManufacturingYear())) {
+            updates.put("manufacturingYear", vehicle.getManufacturingYear());
+        }
+        if (vehicle.getFuelType() != null) {
+            if (!Utils.isEmpty(vehicle.getFuelType().getCode())) {
+                updates.put("fuelType.code", vehicle.getFuelType().getCode());
+            }
+            if (!Utils.isEmpty(vehicle.getFuelType().getDescription())) {
+                updates.put("fuelType.description", vehicle.getFuelType().getDescription());
+            }
+        }
+        if (vehicle.getValidSOAT() != null) {
+            if (!Utils.isEmpty(vehicle.getValidSOAT().getNumber())) {
+                updates.put("validSOAT.number", vehicle.getValidSOAT().getNumber());
+            }
+            if (!Utils.isEmpty(vehicle.getValidSOAT().getCompanyNumber())) {
+                updates.put("validSOAT.companyNumber", vehicle.getValidSOAT().getCompanyNumber());
+            }
+            if (!Utils.isEmpty(vehicle.getValidSOAT().getCompanyName())) {
+                updates.put("validSOAT.companyName", vehicle.getValidSOAT().getCompanyName());
+            }
+            if (!Utils.isEmpty(vehicle.getValidSOAT().getDescription())) {
+                updates.put("validSOAT.description", vehicle.getValidSOAT().getDescription());
+            }
+            if (!Utils.isEmpty(vehicle.getValidSOAT().getExpirationDate())) {
+                updates.put("validSOAT.expirationDate", vehicle.getValidSOAT().getExpirationDate());
+            }
+            updates.put("validSOAT.active", vehicle.getValidSOAT().isActive());
+        }
+        if (vehicle.getEmptyWeight() != 0) {
+            updates.put("emptyWeight", vehicle.getEmptyWeight());
+        }
+        if (vehicle.getErrorRNDC() != null) {
+            if (!Utils.isEmpty(vehicle.getErrorRNDC().getError())) {
+                updates.put("errorRNDC.error", vehicle.getErrorRNDC().getError());
+            }
+        } else {
+            updates.put("errorRNDC.error", null);
+        }
+
+        if (vehicle.getAxles() != 0) {
+            updates.put("axles", vehicle.getAxles());
+        }
+        if (vehicle.getCheckExpeditionDate() != null) {
+            updates.put("checkExpeditionDate", vehicle.getCheckExpeditionDate());
+        }
+        if (!Utils.isEmpty(vehicle.getLastInspection())) {
+            updates.put("lastInspection", vehicle.getLastInspection());
+        }
+
+        if (vehicle.getExtraImages() != null) {
+            updates.put("extraImages", vehicle.getExtraImages());
+        }
+        if (vehicle.getNumberOfTrips() != null && vehicle.getNumberOfTrips() > 0) {
+            updates.put("numberOfTrips", vehicle.getNumberOfTrips());
+        }
+        if (vehicle.getRegistrationDate() != null) {
+            updates.put("registrationDate", vehicle.getRegistrationDate());
+        }
+        if (vehicle.getHolderCompany() != null) {
+            updates.put("holderCompany", vehicle.getHolderCompany());
+        }
+        
+        updates.put("exclusive", vehicle.isExclusive());
+        
+        if (vehicle.getHolderCompany() != null) {
+            updates.put("holderIsExclusive", vehicle.isHolderIsExclusive());
+        }
+
+        updates.put("repowered", vehicle.isRepowered());
+
+        ApiFuture<WriteResult> writeResult = query.update(updates);
+
+        System.out.println("Update vehicle " + vehicle.getId() + " time : " + writeResult.get().getUpdateTime());
+    }
+
+    return vehicle;
+}
