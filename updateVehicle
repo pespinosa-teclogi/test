@@ -19,9 +19,11 @@ public Response updateVehicle(Vehicle vehicle) throws Exception {
             resp = Status.NoContent.entity("");
         }
     } catch (Exception e) {
+        resp=Status.Error.entity(basicResponse);
         System.err.println(TAG);
         e.printStackTrace();
         throw e;
+        
     }
     return resp;
 }
@@ -34,7 +36,8 @@ public BasicResponse updateVehicle(Vehicle vehicle) throws Exception;
 public BasicResponse updateVehicle(Vehicle vehicle) throws Exception {
     BasicResponse basicResponse = null;
     try {
-        basicResponse = vehicleDao.updateVehicle(vehicle);
+        vehicleDao.updateVehicle(vehicle);
+        basicResponse = new BasicResponse(ResponseMessage.UPDATE.getValue());
     } catch (Exception e) {
         System.err.println(TAG);
         throw e;

@@ -1,0 +1,268 @@
+Actualiza un vehiculo
+URL: /Teclogi/services/vehicle/update
+Method: PUT
+PathParams: None
+QueryParams: None
+Body: Vehicle Object
+{
+  "owner": {
+    "documentTypeId": "1",
+    "documentTypeName": "Cédula de ciudadanía",
+    "document": "94071234",
+    "name": "EDILBERTO CARVAJAL HOYOS",
+    "addressId":"",
+    "address":"",
+    "municipalityCode":"",
+    "errorRNDC":{
+        "error":""
+    }
+  },
+  "driver": {
+    "documentTypeId": "1",
+    "documentTypeName": "Cédula de ciudadanía",
+    "document": "16705593",
+    "name": "alexander ruiz carvajal"
+  },
+  "administrator": {
+    "documentTypeId": "3",
+    "documentTypeName": "NIT",
+    "document": "901272916",
+    "name": "ENTREGA URBANA SAS",
+    "addressId":"",
+    "address": "Calle 34a Norte #2a Norte-70, Cali, Valle del Cauca, Colombia",
+    "municipalityCode": "76001000",
+    "errorRNDC":{
+        "error":""
+    }
+  },
+  "hasAdministrator":true,
+  "id": "WSJ837",
+  "state": {
+    "active": true,
+    "description": "Active",
+    "type":"checkList"
+  },
+  "checkId": "CHK308384f7b3152921339aa7b82a78a634",
+  "vehicleType": {
+    "name": "TRACTOCAMION",
+    "quality":"",
+    "quantity": 0,
+    "bodyWorkType":{
+        "name":""
+    },
+    "configuration": {
+      "code": "53",
+      "description": "tractocamion"
+    }
+  },
+  "trailerId": "R07255",
+  "validSOAT": {
+    "number": "30716657",
+    "companyNumber":"",
+    "companyName": "SEGUROS GENERALES SURAMERICANA S.A.",
+    "description": "Active",
+    "expirationDate": "2023-11-15T23:59:00-05",
+    "active": true
+  },
+  "validRTM": {
+    "description": "Active",
+    "expirationDate": "2024-07-11T23:59:00-05",
+    "active": true
+  },
+  "gps": {
+    "gpsType": "Satrack",
+    "userGps": "urbana2019",
+    "passwordGps": "urbana2019"
+  },
+  "companyId": "-1",
+  "checkExpeditionDate": "30/09/2023",
+  "color": "BLANCO",
+  "approvalBy": {
+    "userId": "14835835",
+    "userName": "ALEXANDER CASTAÑEDA VARGAS",
+    "date": "2023-02-01 19:33 +0000"
+  },
+  "createdBy": {
+    "userId": "14835835",
+    "userName": "ALEXANDER CASTAÑEDA VARGAS",
+    "date": "2023-02-01 19:33 +0000"
+  },
+  "lastInspection": "ipKMODWbNTdjj22CRzmf",
+  "numberOfTrips": 27,
+  "holderCompany": [
+    "9013312320"
+  ],
+  "exclusive": false,
+  "holderIsExclusive": false,
+  "bankAccountAdvance": {
+    "accountTypeCode": "2",
+    "accountType": "Corriente",
+    "accountNumber": "83600012611",
+    "purpose":"",
+    "createdInBank": false,
+    "licensePlate": "",
+    "documentTypeId": "3",
+    "documentTypeName": "NIT",
+    "document": "901272916",
+    "name": "ENTREGA URBANA SAS",
+    "email": "entrega_urbana@hotmail.com",
+    "phone": "3041056869",
+    "address":"",
+    "bank": {
+      "id": "sBThDiofjx8WQOXX893N",
+      "name": "Bancolombia",
+      "code": "1007",
+      "codeBancolombia": "5600078"
+    },
+    "certificate": "vehicles/WSJ837/advance/CERTIFICACION BANCOL ENTREGA URBANA SAS (1).pdf",
+    "authorization": "vehicles/WSJ837/advance/CONTRATO COMPRA VENTA WSJ837 (1) (1).pdf",
+    "state": {
+      "active": true,
+      "description": "Aprobado",
+      "date": "02/10/2023",
+      "userId": "52323565",
+      "type":""
+    },
+    "rut": "vehicles/WSJ837/advance/RUT ENTREGA ENE 29 2022 14730060259 (1).pdf"
+  },
+  "bankAccountBalance": {
+    "accountTypeCode": "2",
+    "accountType": "Corriente",
+    "accountNumber": "83600012611",
+    "purpose":"",
+    "createdInBank": false,
+    "licensePlate": "",
+    "documentTypeId": "3",
+    "documentTypeName": "NIT",
+    "document": "901272916",
+    "name": "ENTREGA URBANA SAS",
+    "email": "entrega_urbana@hotmail.com",
+    "phone": "3041056869",
+    "address":"",
+    "bank": {
+      "id": "sBThDiofjx8WQOXX893N",
+      "name": "Bancolombia",
+      "code": "1007",
+      "codeBancolombia": "5600078"
+    },
+    "certificate": "vehicles/WSJ837/balance/CERTIFICACION BANCOL ENTREGA URBANA SAS (1).pdf",
+    "authorization": "vehicles/WSJ837/balance/CONTRATO COMPRA VENTA WSJ837 (1) (1).pdf",
+    "state": {
+      "active": true,
+      "description": "Aprobado",
+      "date": "25/02/2023",
+      "userId": "1070781916",
+      "type":""
+    },
+    "rut": "vehicles/WSJ837/balance/RUT ENTREGA ENE 29 2022 14730060259 (1).pdf"
+  },
+  "propertyCard": "vehicle/WSJ837/Documento sin título - 2023-10-02T093506.635.pdf",
+  "frontPicture": "vehicle/WSJ837/VEHICULO FRONTAL.jfif",
+  "tenureContract":"",
+  "rightLateralPicture": "vehicle/WSJ837/VEHICULO DERECHA.jfif",
+  "leftLateralPicture": "vehicle/WSJ837/VEHICULO IZQUIERDA.jfif",
+  "extraImages": [
+    {
+      "type": {
+        "id": "SOAT",
+        "name":""
+      },
+      "path": "vehicle/WSJ837/4eb7aa8e-09e1-4284-9f01-594cc043a52c.jfif",
+      "validated": false,
+      "fingerPrintValidation":{
+        "userId":"",
+        "userName":"",
+        "date":""
+      }
+    },
+    {
+      "type": {
+        "id": "RTM",
+        "name":""
+      },
+      "path": "vehicle/WSJ837/TECNO WSJ837 (3).jpg",
+      "validated": false,
+      "fingerPrintValidation":{
+        "userId":"",
+        "userName":"",
+        "date":""
+      }
+    }
+  ],
+  "bodywork": {
+    "code": "0",
+    "description": "SRS"
+  },
+  "brand": {
+    "code": "62",
+    "description": "INTERNATIONAL"
+  },
+  "line": {
+    "code": "11",
+    "description": "4400"
+  },
+  "manufacturingYear": "2007",
+  "fuelType": {
+    "code": "1",
+    "description": "DIESEL"
+  },
+  "emptyWeight": 7000,
+  "errorRNDC": {
+    "error":""
+  },
+  "axles": 2,
+  "chassisId": "3HCMKADR47L461082",
+  "motorId": "531HM2U1497892",
+  "registrationDate": "2006-11-07 05:00 +0000",
+  "repowered": false
+}
+
+Responses:
+200: Updated Vehicle Entity
+500: Internal Server Error
+204: No content
+
+
+Observaciones
+
+addressId y errorRNDC en owner fue añadido 
+"addressId":"",
+"errorRNDC":{
+        "error":""
+    }
+
+addressId y errorRNDC en administrator fue añadido 
+"addressId":"",
+"errorRNDC":{
+        "error":""
+    }
+
+id fue añadido
+"id": "WSJ837",
+
+Quality for vehcicle was included
+
+approvalBy was included
+"approvalBy": {
+    "userId": "14835835",
+    "userName": "ALEXANDER CASTAÑEDA VARGAS",
+    "date": "2023-02-01 19:33 +0000"
+  },
+
+purpose, and address was included in bankAccountAdvance
+"purpose":"",
+"address":"",
+type was include in state>bankAccountAdvance
+"type":""
+
+purpose, and address was included in bankAccountBalance
+type was include in state>bankAccountAdvance
+"type":""
+
+name y fingerPrintValidation en type>extraImages fue añadido
+"name":""
+"fingerPrintValidation":{
+        "userId":"",
+        "userName":"",
+        "date":""
+      }
